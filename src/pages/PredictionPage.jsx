@@ -52,7 +52,7 @@ const PredictionPage = () => {
       formData.append("sex", sex);
       formData.append("localization", localization);
 
-      const response = await axios.post("http://localhost:5000/predict", formData, {
+      const response = await axios.post("https://huggingface.co/spaces/nakul1505/skin-backend/predict", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setResult(response.data);
