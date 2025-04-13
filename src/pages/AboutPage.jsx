@@ -1,55 +1,60 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Award, BookOpen, Brain, Microscope, Github, Linkedin, Mail } from 'lucide-react';
+import harshThacker from '../assets/HarshT.jpg';
+import harshDakhare from '../assets/HarshD.jpg';
+import anshChoube from '../assets/AnshC.jpg';
+import Nakul from '../assets/NakulImg.jpg';
+
 
 // Team members data
 const teamMembers = [
   {
     id: 1,
     name: "Nakul Makode",
-    role: "AI Engineer & Team Lead",
+    role: "AI Enthusiast & Team Lead",
     bio: "Specializes in deep learning models and computer vision algorithms for medical image analysis.",
-    image: "https://randomuser.me/api/portraits/men/32.jpg",
+    image: Nakul,
     social: {
-      github: "#",
-      linkedin: "#",
-      email: "nakul@example.com"
+      github: "https://github.com/NAKULMAK05",
+      linkedin: "https://www.linkedin.com/in/nakul-makode15/",
+      email: "makodens@rknec.edu"
     }
   },
   {
     id: 2,
     name: "Ansh Choube",
-    role: "Full Stack Developer",
+    role: "Full Stack Development Enthusiast",
     bio: "Expert in building scalable web applications and integrating AI models into user-friendly interfaces.",
-    image: "https://randomuser.me/api/portraits/men/41.jpg",
+    image: anshChoube,
     social: {
-      github: "#",
-      linkedin: "#",
-      email: "ansh@example.com"
+      github: "https://github.com/anshuuuuuuuuuuuuu",
+      linkedin: "https://www.linkedin.com/in/ansh-choube-7263232b1/",
+      email: "choubean@rknec.edu"
     }
   },
   {
     id: 3,
     name: "Harsh Thacker",
-    role: "ML Engineer",
+    role: "ML Enthusiast",
     bio: "Focuses on natural language processing and developing the medical chatbot assistant.",
-    image: "https://randomuser.me/api/portraits/men/55.jpg",
+    image: harshThacker,
     social: {
-      github: "#",
-      linkedin: "#",
-      email: "harsh.t@example.com"
+      github: "https://github.com/HarshT2106",
+      linkedin: "https://www.linkedin.com/in/harsh-thacker-278a0a25b/",
+      email: "thackerha@rknec.edu"
     }
   },
   {
     id: 4,
     name: "Harsh Dakhare",
-    role: "Data Scientist",
+    role: "Data Science Enthusiast",
     bio: "Works on data preprocessing, model validation, and ensuring high accuracy in skin lesion classification.",
-    image: "https://randomuser.me/api/portraits/men/67.jpg",
+    image: harshDakhare ,
     social: {
-      github: "#",
-      linkedin: "#",
-      email: "harsh.d@example.com"
+      github: "https://github.com/Harshdakhare4",
+      linkedin: "https://www.linkedin.com/in/harsh-dakhare-2218a5251/",
+      email: "dakharehm@rknec.edu"
     }
   }
 ];
