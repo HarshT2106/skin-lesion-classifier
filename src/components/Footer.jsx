@@ -60,17 +60,17 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <Mail className="h-5 w-5 text-primary mr-2 mt-0.5" />
-                <span className="text-gray-400">contact@dermascanai.com</span>
+                <span className="text-gray-400">makodens@rknec.edu</span>
               </li>
               <li className="flex items-start">
                 <Phone className="h-5 w-5 text-primary mr-2 mt-0.5" />
-                <span className="text-gray-400">+1 (555) 123-4567</span>
+                <span className="text-gray-400">+91 8421028223</span>
               </li>
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 text-primary mr-2 mt-0.5" />
                 <span className="text-gray-400">
-                  123 AI Research Park,<br />
-                  Silicon Valley, CA 94043
+                  Ramdeobaba University ,<br />
+                  Gittikhadan, Nagpur 440013
                 </span>
               </li>
             </ul>
