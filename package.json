@@ -19,7 +19,9 @@
     "next": "^15.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "@gradio/client": "^1.13.1"
     "react-router-dom": "^7.4.1",
+    "react-markdown": "^10.1.0",
     "tailwindcss": "^4.0.11"
   },
   "devDependencies": {
