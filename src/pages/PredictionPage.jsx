@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion"
 import axios from "axios"
 import { jsPDF } from "jspdf"
@@ -592,8 +593,8 @@ const PredictionPage = () => {
             </>
           ) : (
             <>
-              <Brain className="mr-2 h-5 w-5" />
-              Analyze Lesion
+              <Brain className="mr-2 h-5 w-5 text-black" />
+              <span className = "text-black">Analyze Lesion</span>
             </>
           )}
         </motion.button>
@@ -1087,7 +1088,7 @@ const PredictionPage = () => {
                           : "bg-white border border-gray-200 text-gray-800 rounded-tl-none shadow-sm"
                     }`}
                   >
-                    {msg.content}
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                 </motion.div>
               ))}
