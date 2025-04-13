@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion"
+import axios from "axios"
 import { jsPDF } from "jspdf"
-import { Client } from "@gradio/client";
 import {
   FileImage,
   Brain,
@@ -30,7 +31,6 @@ import {
 
 const API_KEY = "AIzaSyDicwrWgGI6An8fVs8WmmUhMS0Wz2kNjiY"
 const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
-const GRADIO_ENDPOINT = "VidyutCx/dermai";
 
 const PredictionPage = () => {
   const [image, setImage] = useState(null)
@@ -49,9 +49,6 @@ const PredictionPage = () => {
   const [isDragging, setIsDragging] = useState(false)
   const [pdfGenerating, setPdfGenerating] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [resizedImage, setResizedImage] = useState(null)
-  const [maskImage, setMaskImage] = useState(null)
-  const [overlayImage, setOverlayImage] = useState(null)
 
   const fileInputRef = useRef(null)
   const resultsRef = useRef(null)
@@ -111,10 +108,7 @@ const PredictionPage = () => {
     e.preventDefault()
     setError("")
     setResult(null)
-    setChatMessages([])
-    setResizedImage(null)
-    setMaskImage(null)
-    setOverlayImage(null)
+    setChatMessages([]) // Reset chat when new prediction is made
 
     if (!image) {
       setError("Please select an image before predicting.")
@@ -123,60 +117,24 @@ const PredictionPage = () => {
 
     setIsLoading(true)
     try {
-      // Convert the File object to a Blob that Gradio client can use
-      const imageBlob = new Blob([await image.arrayBuffer()], { type: image.type });
+      const formData = new FormData()
+      formData.append("image", image)
+      formData.append("dx_type", dxType)
+      formData.append("age", age)
+      formData.append("sex", sex)
+      formData.append("localization", localization)
 
-      // Connect to Gradio client
-      const client = await Client.connect(GRADIO_ENDPOINT);
-
-      // Debug the parameters being sent
-      console.log("Sending to Gradio:", {
-        image_path: imageBlob,
-        dx_type: dxType || "",
-        age: age || "",
-        sex: sex || "",
-        localization: localization || ""
-      });
-
-      // Call the predict endpoint with named parameters
-      const result = await client.predict("/predict", {
-        image_path: imageBlob,
-        dx_type: dxType || "",
-        age: age || "",
-        sex: sex || "",
-        localization: localization || ""
-      });
-
-      // Debug the response
-      console.log("Gradio response:", result);
-
-      // Process Gradio response
-      const gradioData = result.data;
-      console.log("Gradio data:", gradioData);
-
-      // The first 3 items are image objects with URLs
-      // The 4th item (index 3) is the result JSON
-      if (gradioData.length >= 4) {
-        // Set image URLs - these are direct image URLs we can use
-        setResizedImage(gradioData[0].url);
-        setMaskImage(gradioData[1].url);
-        setOverlayImage(gradioData[2].url);
-
-        // Set the result JSON (index 3)
-        setResult(gradioData[3]);
-
-        setActiveTab("results");
-      } else {
-        throw new Error("Invalid response format from server");
-      }
+      const response = await axios.post("http://localhost:5000/predict", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      setResult(response.data)
+      setActiveTab("results")
     } catch (err) {
-      console.error("Error during prediction:", err);
-      setError("Error: " + (err.message || "Failed to process image"));
+      setError("Error: " + (err.response?.data?.error || err.message))
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
-
 
   const handleOpenChat = async () => {
     setError("")
@@ -317,55 +275,23 @@ const PredictionPage = () => {
         pdf.addImage(imagePreview, "JPEG", 15, 75, 80, 60)
       }
 
-      // Set initial y position for next content
-      let yPos = 145
-
-      // Add segmentation images if available
-      if (resizedImage && maskImage && overlayImage) {
-        pdf.setFont("helvetica", "bold")
-        pdf.setFontSize(12)
-        pdf.text("Segmentation Analysis", 15, yPos)
-        yPos += 10
-
-        // Add resized image
-        pdf.addImage(resizedImage, "JPEG", 15, yPos, 55, 55)
-        pdf.setFont("helvetica", "normal")
-        pdf.setFontSize(8)
-        pdf.text("Resized Image", 15, yPos + 60)
-
-        // Add mask image
-        pdf.addImage(maskImage, "JPEG", 75, yPos, 55, 55)
-        pdf.text("Segmentation Mask", 75, yPos + 60)
-
-        // Add overlay image
-        pdf.addImage(overlayImage, "JPEG", 135, yPos, 55, 55)
-        pdf.text("Overlay Image", 135, yPos + 60)
-
-        // Adjust the starting y-position for the next sections
-        yPos += 70
-      }
-
       // Add analysis results
       pdf.setFont("helvetica", "bold")
       pdf.setFontSize(12)
-      pdf.text("Analysis Results", 15, yPos)
-      yPos += 7
+      pdf.text("Analysis Results", 15, 145)
 
       pdf.setFont("helvetica", "normal")
       pdf.setFontSize(10)
-      pdf.text(`Predicted Class: ${result.combined_result.predicted_class}`, 15, yPos)
-      yPos += 6
-      pdf.text(`Confidence: ${(result.combined_result.confidence * 100).toFixed(2)}%`, 15, yPos)
-      yPos += 6
-      pdf.text(`Source: ${result.combined_result.source}`, 15, yPos)
-      yPos += 10
+      pdf.text(`Predicted Class: ${result.combined_result.predicted_class}`, 15, 152)
+      pdf.text(`Confidence: ${(result.combined_result.confidence * 100).toFixed(2)}%`, 15, 158)
+      pdf.text(`Source: ${result.combined_result.source}`, 15, 164)
 
       // Add CNN results
       pdf.setFont("helvetica", "bold")
-      pdf.text("CNN Analysis", 15, yPos)
+      pdf.text("CNN Analysis", 15, 174)
       pdf.setFont("helvetica", "normal")
-      yPos += 6
 
+      let yPos = 180
       pdf.text(`Predicted Class: ${result.cnn_result.predicted_class}`, 15, yPos)
       yPos += 6
       pdf.text(`Confidence: ${(result.cnn_result.confidence * 100).toFixed(2)}%`, 15, yPos)
@@ -394,19 +320,17 @@ const PredictionPage = () => {
         yPos += 6
       }
 
-      // Add segmentation text result if available
-      if (result.segmentation_result) {
-        yPos += 3
-        pdf.setFont("helvetica", "bold")
-        pdf.text("Segmentation Details", 15, yPos)
-        pdf.setFont("helvetica", "normal")
-        yPos += 6
+      // Add segmentation results
+      yPos += 3
+      pdf.setFont("helvetica", "bold")
+      pdf.text("Segmentation Analysis", 15, yPos)
+      pdf.setFont("helvetica", "normal")
+      yPos += 6
 
-        // Split long text into multiple lines
-        const segmentationText = result.segmentation_result
-        const textLines = pdf.splitTextToSize(segmentationText, 180)
-        pdf.text(textLines, 15, yPos)
-      }
+      // Split long text into multiple lines
+      const segmentationText = result.segmentation_result
+      const textLines = pdf.splitTextToSize(segmentationText, 180)
+      pdf.text(textLines, 15, yPos)
 
       // Add footer
       pdf.setFillColor(240, 240, 240)
@@ -429,6 +353,7 @@ const PredictionPage = () => {
       setPdfGenerating(false)
     }
   }
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -498,12 +423,13 @@ const PredictionPage = () => {
             Lesion Image <span className="text-red-500">*</span>
           </label>
           <div
-            className={`relative border-2 border-dashed rounded-lg p-6 transition-all ${isDragging
-              ? "border-primary bg-primary/5"
-              : imagePreview
-                ? "border-green-400 bg-green-50"
-                : "border-gray-300 hover:border-primary bg-gray-50"
-              } cursor-pointer`}
+            className={`relative border-2 border-dashed rounded-lg p-6 transition-all ${
+              isDragging
+                ? "border-primary bg-primary/5"
+                : imagePreview
+                  ? "border-green-400 bg-green-50"
+                  : "border-gray-300 hover:border-primary bg-gray-50"
+            } cursor-pointer`}
             onClick={() => fileInputRef.current.click()}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -649,10 +575,11 @@ const PredictionPage = () => {
         <motion.button
           type="submit"
           disabled={isLoading || !image}
-          className={`w-full flex items-center justify-center py-3 px-4 rounded-lg font-medium transition-all ${isLoading || !image
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-primary/20"
-            }`}
+          className={`w-full flex items-center justify-center py-3 px-4 rounded-lg font-medium transition-all ${
+            isLoading || !image
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-primary/20"
+          }`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.5 }}
@@ -666,8 +593,8 @@ const PredictionPage = () => {
             </>
           ) : (
             <>
-              <Brain className="mr-2 h-5 w-5" />
-              Analyze Lesion
+              <Brain className="mr-2 h-5 w-5 text-black" />
+              <span className = "text-black">Analyze Lesion</span>
             </>
           )}
         </motion.button>
@@ -735,39 +662,37 @@ const PredictionPage = () => {
 
         {/* Main image and visualization */}
         <motion.div
-          className="mb-8 bg-gray-50 p-8 rounded-xl border border-gray-200"
+          className="mb-8 bg-gray-50 p-6 rounded-xl border border-gray-200"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <h3 className="text-lg font-medium text-gray-800 mb-4">Image Analysis & Segmentation</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Original Image */}
-            <div>
-              <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-white h-full">
-                <img src={imagePreview} alt="Original" className="w-full h-auto object-cover" />
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="md:w-1/3">
+              <div className="relative">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/30 to-indigo-500/30 rounded-xl blur-md opacity-70"></div>
+                <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-white">
+                  <img src={imagePreview || "/placeholder.svg"} alt="Original" className="w-full h-auto object-cover" />
+                </div>
               </div>
-              <p className="text-sm text-center text-gray-500 mt-2">Original Image</p>
+              <p className="text-sm text-center text-gray-500 mt-3">Original Image</p>
             </div>
-
-            {/* Segmentation Mask */}
-            <div>
-              <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-white h-full">
-                <img src={maskImage} alt="Segmentation Mask" className="w-full h-auto object-cover" />
+            <div className="md:w-2/3">
+              <div className="relative">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/30 to-primary/30 rounded-xl blur-md opacity-70"></div>
+                <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-white">
+                  <img
+                    src={result.plot_image || "/placeholder.svg"}
+                    alt="Analysis"
+                    className="w-full h-auto object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none"></div>
+                </div>
               </div>
-              <p className="text-sm text-center text-gray-500 mt-2">Segmentation Mask</p>
-            </div>
-
-            {/* Overlay Image */}
-            <div>
-              <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-white h-full">
-                <img src={overlayImage} alt="Segmentation Overlay" className="w-full h-auto object-cover" />
-              </div>
-              <p className="text-sm text-center text-gray-500 mt-2">Segmentation Overlay</p>
+              <p className="text-sm text-center text-gray-500 mt-3">Analysis Visualization</p>
             </div>
           </div>
         </motion.div>
-
 
         {/* Primary diagnosis card */}
         <motion.div
@@ -1002,8 +927,9 @@ const PredictionPage = () => {
             <button
               onClick={generatePDF}
               disabled={pdfGenerating}
-              className={`w-full flex items-center justify-center py-3 px-4 rounded-lg font-medium transition-all ${pdfGenerating ? "bg-gray-400 cursor-not-allowed" : "bg-amber-600 hover:bg-amber-700 "
-                }`}
+              className={`w-full flex items-center justify-center py-3 px-4 rounded-lg font-medium transition-all ${
+                pdfGenerating ? "bg-gray-400 cursor-not-allowed" : "bg-amber-600 hover:bg-amber-700 "
+              }`}
             >
               {pdfGenerating ? (
                 <>
@@ -1154,14 +1080,15 @@ const PredictionPage = () => {
                   transition={{ duration: 0.3 }}
                 >
                   <div
-                    className={`inline-block p-3 rounded-lg max-w-[80%] ${msg.role === "user"
-                      ? "bg-primary text-white rounded-tr-none"
-                      : msg.role === "system"
-                        ? "bg-gray-200 text-gray-800 rounded-tl-none"
-                        : "bg-white border border-gray-200 text-gray-800 rounded-tl-none shadow-sm"
-                      }`}
+                    className={`inline-block p-3 rounded-lg max-w-[80%] ${
+                      msg.role === "user"
+                        ? "bg-primary text-white rounded-tr-none"
+                        : msg.role === "system"
+                          ? "bg-gray-200 text-gray-800 rounded-tl-none"
+                          : "bg-white border border-gray-200 text-gray-800 rounded-tl-none shadow-sm"
+                    }`}
                   >
-                    {msg.content}
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                 </motion.div>
               ))}
@@ -1209,8 +1136,9 @@ const PredictionPage = () => {
             <button
               type="submit"
               disabled={isLoading || !chatInput.trim()}
-              className={`p-3 rounded-full ${isLoading || !chatInput.trim() ? "bg-gray-300 cursor-not-allowed" : "bg-primary hover:bg-primary/90"
-                } shadow-md hover:shadow-lg transition-all`}
+              className={`p-3 rounded-full ${
+                isLoading || !chatInput.trim() ? "bg-gray-300 cursor-not-allowed" : "bg-primary hover:bg-primary/90"
+              } shadow-md hover:shadow-lg transition-all`}
             >
               {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
             </button>
