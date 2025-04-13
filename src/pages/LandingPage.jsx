@@ -51,8 +51,8 @@ const testimonials = [
 
 // Sample stats data
 const stats = [
-  { id: 1, value: "98%", label: "Accuracy Rate" },
-  { id: 2, value: "50+", label: "Skin Conditions" },
+  { id: 1, value: "90%", label: "Accuracy Rate" },
+  { id: 2, value: "7+", label: "Skin Conditions" },
   { id: 3, value: "10,000+", label: "Images Analyzed" },
   { id: 4, value: "24/7", label: "AI Assistance" },
 ]
@@ -341,7 +341,7 @@ const LandingPage = () => {
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <Shield className="h-6 w-6 text-primary mb-2" />
-                  <span className="text-sm font-medium">99.2% Accuracy</span>
+                  <span className="text-sm font-medium">89.5% Accuracy</span>
                 </motion.div>
 
                 <motion.div
@@ -406,7 +406,7 @@ const LandingPage = () => {
                       <CheckCircle className="h-6 w-6 text-green-600" />
                     </div>
                     <div>
-                      <p className="text-gray-800 font-medium">98% Accuracy</p>
+                      <p className="text-gray-800 font-medium">90% Accuracy</p>
                       <p className="text-gray-500 text-sm">Verified Results</p>
                     </div>
                   </div>
@@ -539,7 +539,7 @@ const LandingPage = () => {
                   Our integrated chatbot provides instant answers to medical questions, explains diagnoses, and offers
                   guidance on next steps for patient care.
                 </p>
-                <Link to="/chatbot" className="inline-flex items-center text-primary hover:text-primary/80 font-medium">
+                <Link to="/chat" className="inline-flex items-center text-primary hover:text-primary/80 font-medium">
                   Try the Medical Assistant <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </div>
