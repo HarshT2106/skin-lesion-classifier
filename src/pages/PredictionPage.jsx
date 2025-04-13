@@ -667,7 +667,7 @@ const PredictionPage = () => {
           ) : (
             <>
               <Brain className="mr-2 h-5 w-5" />
-              Analyze Lesion
+             <span className = "text-black">Analyze Lesion</span>
             </>
           )}
         </motion.button>
