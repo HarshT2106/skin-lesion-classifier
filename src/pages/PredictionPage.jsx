@@ -30,7 +30,7 @@ import {
 
 const API_KEY = "AIzaSyDicwrWgGI6An8fVs8WmmUhMS0Wz2kNjiY"
 const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
-const GRADIO_ENDPOINT = "VidyutCx/dermai";
+const GRADIO_ENDPOINT = "VidyutKx/dermscanai";
 
 const PredictionPage = () => {
   const [image, setImage] = useState(null)
