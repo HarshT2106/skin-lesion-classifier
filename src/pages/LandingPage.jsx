@@ -666,7 +666,7 @@ const LandingPage = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section ref={testimonialsRef} className="py-24 bg-white overflow-hidden">
+{/*       <section ref={testimonialsRef} className="py-24 bg-white overflow-hidden">
         <div className="container mx-auto px-4 md:px-6">
           <motion.div
             className="text-center mb-16"
@@ -773,7 +773,7 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
       <section ref={ctaRef} className="py-24 bg-gradient-to-br from-gray-900 to-primary/90 text-white overflow-hidden">
