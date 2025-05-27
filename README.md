@@ -1,4 +1,4 @@
-# DermaScan AI : Skin Lesion Classification of Dermatoscopic Images using Deep Learning and NLP Techniques
+# DermaScan AI: Skin Lesion Classification of Dermatoscopic Images using Deep Learning and NLP Techniques
 
 A comprehensive project that integrates state-of-the-art deep learning and NLP methods to diagnose skin lesions. By leveraging the HAM10000 dataset, the system combines image classification, lesion segmentation, and text analysis to produce robust and reliable predictions.
 
