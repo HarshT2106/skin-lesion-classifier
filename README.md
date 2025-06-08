@@ -109,6 +109,8 @@ The project is structured with a modern, responsive frontend built with React an
    - The combined prediction is displayed on the frontend, offering clear insights into the lesion classification.
 
 ---
+### Architectural Diagram
+![architecture-diagram](public/diagram.png)
 
 ## Contributing
 
